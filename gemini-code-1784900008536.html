@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Анашымның Туған Күні! ❤️</title>
+    <style>
+        /* Base Colors and Typography */
+        :root {
+            --primary-color: #d19a66; 
+            --secondary-color: #6a4c9c; 
+            --bg-color: #fffaf0; 
+            --text-color: #4a4a4a;
+            --accent-color: #e8c49e;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Georgia', 'serif', 'Noto Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            /* Prevent text highlighting when clicking fast for sparks */
+            user-select: none; 
+        }
+
+        /* Confetti & Sparks Canvas */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none; /* Lets clicks pass through to the page */
+            z-index: 100;
+        }
+
+        /* Music Button */
+        #music-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 25px;
+            font-size: 1.1rem;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #music-btn:hover {
+            background-color: var(--secondary-color);
+            transform: scale(1.05);
+        }
+
+        /* Header & Circle Hero Photo */
+        header {
+            text-align: center;
+            padding: 8vh 20px 4vh;
+            background: linear-gradient(to bottom, white, var(--bg-color));
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero-img-container {
+            width: 240px; 
+            height: 240px;
+            margin: 0 auto 30px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 8px solid white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .hero-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: var(--secondary-color);
+            margin: 0 0 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .sub-header {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-top: 0;
+            font-style: italic;
+        }
+
+        /* Swipeable Slideshow Gallery */
+        .gallery-wrapper {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto 60px;
+            z-index: 10;
+        }
+
+        .slideshow-container {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch; 
+            padding: 20px 0; 
+            gap: 8px; 
+        }
+
+        .slideshow-container::-webkit-scrollbar {
+            display: none;
+        }
+        .slideshow-container {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .slide {
+            flex: 0 0 100%;
+            scroll-snap-align: center;
+            display: flex;
+            flex-direction: column; 
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Unusual & Creative Shapes for Photos */
+        .slide img {
+            width: 96%; 
+            max-width: 550px; 
+            height: 600px; 
+            object-fit: cover;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            transition: transform 0.4s ease;
+        }
+
+        /* Alternating Shapes */
+        .slide:nth-child(1) img, .slide:nth-child(5) img, .slide:nth-child(9) img {
+            border-radius: 200px 200px 20px 20px;
+        }
+
+        .slide:nth-child(2) img, .slide:nth-child(6) img {
+            border-radius: 20px 250px 20px 250px;
+        }
+
+        .slide:nth-child(3) img, .slide:nth-child(7) img {
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+        }
+
+        .slide:nth-child(4) img, .slide:nth-child(8) img {
+            border-radius: 250px 20px 250px 20px;
+        }
+
+        .slide img:hover {
+            transform: scale(1.02);
+        }
+
+        /* Photo Subtext (Caption) Styling */
+        .caption {
+            margin-top: 20px;
+            font-size: 1.4rem;
+            color: var(--secondary-color);
+            font-weight: bold;
+            font-style: italic;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 5px 20px;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* Slideshow Arrows */
+        .nav-btn {
+            position: absolute;
+            top: 45%; 
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--secondary-color);
+            border: none;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            font-size: 1.8rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .nav-btn:hover {
+            background: white;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+            transform: translateY(-50%) scale(1.1);
+        }
+        .prev-btn { left: 15px; }
+        .next-btn { right: 15px; }
+        
+        .swipe-instruction {
+            text-align: center;
+            color: #888;
+            font-size: 1rem;
+            margin-top: 15px;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        /* Message Section */
+        .message-container {
+            max-width: 800px;
+            margin: 0 auto 80px;
+            padding: 40px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .message-container h2 {
+            font-size: 2.2rem;
+            color: var(--secondary-color);
+            margin-bottom: 25px;
+        }
+
+        .message-container p {
+            font-size: 1.25rem;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        .senders {
+            margin-top: 50px;
+            text-align: right;
+            border-top: 2px solid var(--accent-color);
+            padding-top: 20px;
+        }
+
+        .senders p {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.4rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 50px 20px;
+            background-color: var(--secondary-color);
+            color: white;
+            position: relative;
+            z-index: 10;
+        }
+
+        footer p {
+            margin: 5px 0;
+            font-size: 1.3rem;
+        }
+
+        /* Mobile Responsive Adjustments */
+        @media (max-width: 768px) {
+            .hero-img-container { width: 200px; height: 200px; }
+            h1 { font-size: 2.2rem; }
+            .sub-header { font-size: 1.2rem; }
+            .slide img { width: 95%; height: 450px; } 
+            .caption { font-size: 1.1rem; margin-top: 15px; }
+            .message-container { padding: 25px; width: 85%; margin-bottom: 60px; }
+            .message-container h2 { font-size: 1.8rem; }
+            .message-container p { font-size: 1.1rem; }
+            .nav-btn { width: 45px; height: 45px; font-size: 1.4rem; top: 40%; }
+            #music-btn {
+                bottom: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Confetti & Sparks Canvas -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Background Music Element -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="Кайрат Нуртас - Туған күн.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Floating Music Button -->
+    <button id="music-btn" onclick="toggleMusic()">
+        🎵 Музыканы қосу
+    </button>
+
+    <!-- Header Section with Circle Hero Photo -->
+    <header>
+        <div class="hero-img-container">
+            <img src="IMG_5283.JPG" alt="Ең сұлу Анашым">
+        </div>
+        <h1>Анашым, Туған Күніңмен!</h1>
+        <p class="sub-header">Аяулы ұлдарыңнан ыстық лебізбен...</p>
+    </header>
+
+    <!-- Interactive Swipeable Slideshow Gallery -->
+    <div class="gallery-wrapper">
+        <button class="nav-btn prev-btn" onclick="scrollGallery(-1)">❮</button>
+        <div class="slideshow-container" id="slider">
+            
+            <div class="slide">
+                <img src="cf592634-6543-48d8-ba8f-9f83e721f87f.JPG" alt="Отбасылық кеш">
+                <div class="caption">Ұлдарыңның махаббаты</div>
+            </div>
+            
+            <div class="slide">
+                <img src="IMG_5282.JPG" alt="Керемет жан">
+                <div class="caption">Біздің Мақтанышымыз</div>
+            </div>
+            
+            <div class="slide">
+                <img src="cc6f2b1a-0696-4a8b-9b71-1575882f6199.JPG" alt="Немерелермен">
+                <div class="caption">Жанұямыздың жылуы</div>
+            </div>
+            
+            <div class="slide">
+                <img src="dd504b88-0529-48ff-a3ea-491fc52cdfa2.JPG" alt="Әкемен бірге">
+                <div class="caption">Махаббат пен сыйластық</div>
+            </div>
+            
+            <div class="slide">
+                <img src="IMG_5285.JPG" alt="Жарқын күлкі">
+                <div class="caption">Әрқашан күліп жүр!</div>
+            </div>
+            
+            <div class="slide">
+                <img src="fe130b3f-7bda-4b08-a5ec-a46e67242cc9.JPG" alt="Жанұя жылуы">
+                <div class="caption">Отбасылық мереке</div>
+            </div>
+            
+            <div class="slide">
+                <img src="IMG_5286.JPG" alt="Керемет бейне">
+                <div class="caption">Ең сұлу Әйел</div>
+            </div>
+            
+            <div class="slide">
+                <img src="31257436-0b3b-4ee9-ac99-7188c11ff5e1.JPG" alt="Табиғат аясында">
+                <div class="caption">Табиғат аясында</div>
+            </div>
+            
+            <div class="slide">
+                <img src="IMG_5284.JPG" alt="Бақытты сәттер">
+                <div class="caption">Бірліктегі бақыт</div>
+            </div>
+
+        </div>
+        <button class="nav-btn next-btn" onclick="scrollGallery(1)">❯</button>
+        <p class="swipe-instruction">Суреттерді көру үшін оңға-солға сырғытыңыз. Жарқылдату үшін экранды басыңыз! ✨</p>
+    </div>
+
+    <!-- Main Message Section -->
+    <main>
+        <div class="message-container">
+            <h2>Ардақты Анашым! ❤️</h2>
+            <p>Бүгін біз үшін ең ерекше және ең маңызды күн. Сенің өмірге келген, бізге дүние есігін ашқан, мейірімің мен жылуыңды сыйлаған қасиетті күн.</p>
+            <p>Біздің барлық жетістіктеріміз, тәрбиеміз бен адамгершілік қасиеттеріміз – бәрі Сенің арқаңда. Сен – біздің тірегіміз, таусылмас махаббатымыз бен шабыт көзімізсің.</p>
+            <p>Денсаулығың болаттай берік, өмірің бақытқа толы, әр күнің шаттық пен қуанышқа толы болсын! Бізді әрқашан күлімдеген жүзіңмен қарсы алып, айналаңа жылу сыйлап жүре бер.</p>
+            <p>Саған зор денсаулық, ұзақ ғұмыр, баянды бақыт тілейміз. Біз Сені қатты жақсы көреміз және Сені мақтан тұтамыз!</p>
+            <div class="senders">
+                <p>Аяулы ұлдарыңнан шексіз махаббатпен</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>Анашымды туған күнімен құттықтаймыз!</p>
+        <p>✨ 2026 ✨</p>
+    </footer>
+
+    <!-- JavaScript (Music, Slider Arrows, Confetti, and Sparkles) -->
+    <script>
+        // --- Music Player Logic ---
+        const music = document.getElementById("bg-music");
+        const musicBtn = document.getElementById("music-btn");
+        let isPlaying = false;
+
+        function toggleMusic() {
+            if (isPlaying) {
+                music.pause();
+                musicBtn.innerHTML = "🎵 Музыканы қосу";
+            } else {
+                music.play();
+                musicBtn.innerHTML = "⏸️ Музыканы өшіру";
+            }
+            isPlaying = !isPlaying;
+        }
+
+        // --- Slider Navigation Logic ---
+        function scrollGallery(direction) {
+            const slider = document.getElementById('slider');
+            const slideWidth = slider.clientWidth;
+            slider.scrollBy({ left: slideWidth * direction, behavior: 'smooth' });
+        }
+
+        // --- Canvas Setup ---
+        const canvas = document.getElementById('confetti-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const colors = [
+            { front : '#d19a66', back: '#b08155' }, // Gold
+            { front : '#6a4c9c', back: '#503875' }, // Purple
+            { front : '#e8c49e', back: '#d2ab86' }, // Light Accent
+            { front : '#ffffff', back: '#e0e0e0' }, // White
+            { front : '#ff718d', back: '#c4586e' }, // Pink
+            { front : '#ffc107', back: '#ff9800' }  // Bright Yellow
+        ];
+
+        // --- Background Confetti Logic ---
+        let confetti = [];
+        const confettiCount = 100;
+        const gravity = 0.5;
+        const terminalVelocity = 5;
+        const drag = 0.075;
+        let stopSpawning = false; // New variable to control when confetti stops
+
+        // Set a timer for 10 seconds (10000 milliseconds) to stop the background confetti
+        setTimeout(() => {
+            stopSpawning = true;
+        }, 10000); 
+
+        function randomRange(min, max) { return Math.random() * (max - min) + min; }
+
+        function initConfetti() {
+            confetti = [];
+            for (let i = 0; i < confettiCount; i++) {
+                confetti.push({
+                    color      : colors[Math.floor(randomRange(0, colors.length))],
+                    dimensions : { x: randomRange(10, 20), y: randomRange(10, 30) },
+                    position   : { x: randomRange(0, canvas.width), y: canvas.height - 1 },
+                    rotation   : randomRange(0, 2 * Math.PI),
+                    scale      : { x: 1, y: 1 },
+                    velocity   : { x: randomRange(-25, 25), y: randomRange(0, -50) }
+                });
+            }
+        }
+
+        // --- Interactive Sparkles (On Click) Logic ---
+        let sparks = [];
+        
+        function createBurst(x, y) {
+            const sparkCount = 45; // Number of particles per click
+            for (let i = 0; i < sparkCount; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 12 + 4; // Explosion speed
+                sparks.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    color: colors[Math.floor(Math.random() * colors.length)].front,
+                    size: Math.random() * 6 + 3,
+                    life: 1.0,
+                    decay: Math.random() * 0.02 + 0.015 // How fast they fade
+                });
+            }
+        }
+
+        // Listen for clicks/taps anywhere on the screen
+        window.addEventListener('pointerdown', (e) => {
+            // Don't trigger if they click the music button or slider arrows
+            if(e.target.tagName === 'BUTTON' || e.target.closest('.nav-btn')) return;
+            createBurst(e.clientX, e.clientY);
+        });
+
+        // --- Main Animation Loop ---
+        function drawCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Background Confetti
+            confetti.forEach((confetto) => {
+                let width = (confetto.dimensions.x * confetto.scale.x);
+                let height = (confetto.dimensions.y * confetto.scale.y);
+                
+                ctx.translate(confetto.position.x, confetto.position.y);
+                ctx.rotate(confetto.rotation);
+                
+                confetto.velocity.x -= confetto.velocity.x * drag;
+                confetto.velocity.y = Math.min(confetto.velocity.y + gravity, terminalVelocity);
+                confetto.velocity.x += (Math.random() > 0.5 ? Math.random() : -Math.random()) * 2;
+                
+                confetto.position.x += confetto.velocity.x;
+                confetto.position.y += confetto.velocity.y;
+                
+                // This checks if the piece of confetti has fallen off the bottom of the screen
+                if (confetto.position.y >= canvas.height) {
+                    // Only respawn the confetti back at the top if 10 seconds haven't passed
+                    if (!stopSpawning) {
+                        confetto.position.x = randomRange(0, canvas.width);
+                        confetto.position.y = randomRange(-canvas.height, -50);
+                        confetto.velocity.y = randomRange( terminalVelocity, terminalVelocity * 2 );
+                    }
+                }
+
+                if (confetto.position.x > canvas.width) confetto.position.x = 0;
+                if (confetto.position.x < 0) confetto.position.x = canvas.width;
+
+                confetto.scale.y = Math.cos(confetto.position.y * 0.1);
+                ctx.fillStyle = confetto.scale.y > 0 ? confetto.color.front : confetto.color.back;
+                
+                ctx.fillRect(-width / 2, -height / 2, width, height);
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+            });
+
+            // Draw Interactive Sparks
+            for (let i = sparks.length - 1; i >= 0; i--) {
+                let s = sparks[i];
+                s.vy += gravity * 0.8; // Gravity pulling sparks down
+                s.x += s.vx;
+                s.y += s.vy;
+                s.life -= s.decay;
+                
+                if (s.life <= 0) {
+                    sparks.splice(i, 1); // Remove dead sparks
+                    continue;
+                }
+                
+                ctx.globalAlpha = s.life; // Fading effect
+                ctx.fillStyle = s.color;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1.0; // Reset alpha
+            }
+
+            requestAnimationFrame(drawCanvas);
+        }
+
+        // Handle Screen Resizing
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Start Animations
+        initConfetti();
+        drawCanvas();
+    </script>
+</body>
+</html>
